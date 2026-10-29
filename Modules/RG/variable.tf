@@ -1,0 +1,3 @@
+variable "var-rg" {
+  
+}

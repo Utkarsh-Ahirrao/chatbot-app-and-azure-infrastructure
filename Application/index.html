@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Demo ChatBot</title>
+  <style>
+    :root {
+      --navy: #17365f;
+      --blue: #1677f9;
+      --blue-dark: #0c5fd4;
+      --bg: #f3f7fc;
+      --bot: #edf3fa;
+      --text: #172337;
+      --muted: #7b8ca5;
+      --border: #dbe5f1;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at top, #ffffff 0, var(--bg) 70%);
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: linear-gradient(120deg, #17365f, #234d7e);
+      color: white;
+      padding: 22px 20px;
+      box-shadow: 0 3px 14px rgba(17, 43, 78, .15);
+    }
+    .header-inner {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .brand-icon {
+      width: 54px; height: 54px;
+      display: grid; place-items: center;
+      border-radius: 16px;
+      background: rgba(255,255,255,.13);
+      font-size: 30px;
+      flex-shrink: 0;
+    }
+    h1 { margin: 0 0 5px; font-size: clamp(23px, 4vw, 31px); }
+    .subtitle { margin: 0; color: #dce9fb; font-size: 14px; }
+    main {
+      width: min(1000px, calc(100% - 28px));
+      margin: 26px auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 520px;
+      max-height: calc(100vh - 150px);
+      background: rgba(255,255,255,.94);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 12px 35px rgba(31, 65, 105, .08);
+      overflow: hidden;
+    }
+    .status-bar {
+      padding: 12px 18px;
+      border-bottom: 1px solid #e8eef6;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #62748c;
+      font-size: 13px;
+    }
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #20bd78;
+      box-shadow: 0 0 0 3px #e2f8ed;
+    }
+    #chat {
+      flex: 1;
+      overflow-y: auto;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      scroll-behavior: smooth;
+    }
+    .message-row { display: flex; align-items: flex-end; gap: 10px; max-width: 88%; }
+    .message-row.user { align-self: flex-end; flex-direction: row-reverse; }
+    .avatar {
+      flex: 0 0 34px; width: 34px; height: 34px;
+      border-radius: 50%; display: grid; place-items: center;
+      background: var(--blue); color: white; font-size: 18px;
+      box-shadow: 0 3px 8px rgba(22,119,249,.2);
+    }
+    .user .avatar { background: #dce9fb; color: #25578f; }
+    .message-content { min-width: 0; }
+    .bubble {
+      padding: 12px 15px;
+      border-radius: 16px 16px 16px 5px;
+      background: var(--bot);
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+    }
+    .user .bubble {
+      background: linear-gradient(135deg, var(--blue), #3188ff);
+      color: white;
+      border-radius: 16px 16px 5px 16px;
+    }
+    .time { font-size: 11px; color: var(--muted); margin: 5px 4px 0; }
+    .user .time { text-align: right; }
+    .composer {
+      padding: 15px;
+      display: flex;
+      gap: 10px;
+      border-top: 1px solid #e3ebf5;
+      background: #fbfdff;
+    }
+    #messageInput {
+      flex: 1; min-width: 0;
+      border: 1px solid #cfdaea;
+      border-radius: 11px;
+      padding: 14px 15px;
+      font-size: 15px;
+      outline: none;
+      background: white;
+      color: var(--text);
+      transition: border .2s, box-shadow .2s;
+    }
+    #messageInput:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(22,119,249,.12); }
+    button {
+      border: 0; border-radius: 11px; padding: 0 23px;
+      background: var(--blue); color: white; font-size: 15px; font-weight: 700;
+      cursor: pointer; transition: background .2s, transform .1s;
+    }
+    button:hover { background: var(--blue-dark); }
+    button:active { transform: scale(.98); }
+    .suggestions {
+      padding: 0 18px 14px;
+      display: flex; flex-wrap: wrap; gap: 8px;
+    }
+    .suggestion {
+      background: #f1f6fd; color: #31577f; border: 1px solid #dce8f6;
+      border-radius: 20px; padding: 8px 12px; font-size: 12px; cursor: pointer;
+    }
+    .suggestion:hover { background: #e2efff; }
+    footer { text-align: center; color: #91a0b4; font-size: 11px; padding: 0 12px 16px; }
+    @media (max-width: 600px) {
+      header { padding: 17px 15px; }
+      .brand-icon { width: 46px; height: 46px; font-size: 25px; }
+      main { width: calc(100% - 16px); margin: 12px auto; min-height: 0; max-height: calc(100vh - 125px); border-radius: 13px; }
+      #chat { padding: 16px 12px; gap: 15px; }
+      .message-row { max-width: 96%; gap: 7px; }
+      .avatar { width: 29px; height: 29px; flex-basis: 29px; font-size: 15px; }
+      .bubble { padding: 10px 12px; font-size: 14px; }
+      .composer { padding: 10px; gap: 7px; }
+      #messageInput { padding: 12px 10px; font-size: 14px; }
+      button { padding: 0 16px; }
+      .suggestions { padding: 0 10px 12px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="brand-icon" aria-hidden="true">🤖</div>
+      <div>
+        <h1>Demo ChatBot</h1>
+        <p class="subtitle">Ask me anything! I'm here to help.</p>
+      </div>
+    </div>
+  </header>
+
+  <main aria-label="Chatbot application">
+    <div class="status-bar"><span class="status-dot"></span><span>Bot is online · Demo mode</span></div>
+    <section id="chat" aria-live="polite" aria-label="Chat messages"></section>
+    <div class="suggestions" aria-label="Suggested messages">
+      <button class="suggestion" type="button" data-message="What can you do?">What can you do?</button>
+      <button class="suggestion" type="button" data-message="What time is it?">Current time</button>
+      <button class="suggestion" type="button" data-message="Tell me a fun fact">Fun fact</button>
+      <button class="suggestion" type="button" data-message="Help">Help</button>
+    </div>
+    <form class="composer" id="chatForm">
+      <input id="messageInput" type="text" placeholder="Type your message..." autocomplete="off" aria-label="Type your message" maxlength="500" required />
+      <button type="submit">Send ➤</button>
+    </form>
+  </main>
+  <footer>Demo ChatBot · Front-end sample application · No data is sent to a server</footer>
+
+  <script>
+    const chat = document.getElementById("chat");
+    const form = document.getElementById("chatForm");
+    const input = document.getElementById("messageInput");
+
+    function currentTime() {
+      return new Intl.DateTimeFormat([], { hour: "2-digit", minute: "2-digit" }).format(new Date());
+    }
+
+    function addMessage(text, sender) {
+      const row = document.createElement("div");
+      row.className = "message-row " + sender;
+
+      const avatar = document.createElement("div");
+      avatar.className = "avatar";
+      avatar.textContent = sender === "bot" ? "🤖" : "🙂";
+      avatar.setAttribute("aria-hidden", "true");
+
+      const content = document.createElement("div");
+      content.className = "message-content";
+      const bubble = document.createElement("div");
+      bubble.className = "bubble";
+      // textContent prevents user input from being interpreted as HTML.
+      bubble.textContent = text;
+
+      const time = document.createElement("div");
+      time.className = "time";
+      time.textContent = currentTime();
+
+      content.append(bubble, time);
+      row.append(avatar, content);
+      chat.appendChild(row);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function getReply(rawText) {
+      const text = rawText.toLowerCase().trim();
+
+      if (/^(hi|hello|hey|hii|good morning|good afternoon|good evening)\b/.test(text)) {
+        return "Hey there! 👋 Welcome to Demo ChatBot. What would you like to know?";
+      }
+      if (text.includes("what can you do") || text === "help" || text.includes("capabilities")) {
+        return "Here's what I can do in this demo:\n• Tell you the current date and time\n• Share a random fun fact\n• Respond to simple greetings\n• Answer a few basic questions\n\nI'm a front-end demo, so I don't use an AI service or backend yet.";
+      }
+      if (text.includes("time")) {
+        return "The current time is " + currentTime() + ". 🕒";
+      }
+      if (text.includes("date") || text.includes("today")) {
+        return "Today's date is " + new Intl.DateTimeFormat([], { dateStyle: "full" }).format(new Date()) + ". 📅";
+      }
+      if (text.includes("your name") || text.includes("who are you")) {
+        return "I'm Demo ChatBot, a small website created to test application hosting on a VM. 🤖";
+      }
+      if (text.includes("fun fact") || text.includes("random fact") || text.includes("fact")) {
+        const facts = [
+          "Octopuses have three hearts. 🐙",
+          "A day on Venus is longer than its year. 🪐",
+          "Honey can remain edible for a very long time when properly sealed. 🍯",
+          "The first computer bug was famously associated with a moth found in a computer. 🦋",
+          "Bananas are berries from a botanical point of view. 🍌"
+        ];
+        return facts[Math.floor(Math.random() * facts.length)];
+      }
+      if (text.includes("weather")) {
+        return "I can't check live weather because this demo has no weather API or backend. You can add that integration later. 🌤️";
+      }
+      if (text.includes("thank")) {
+        return "You're welcome! 😊 Let me know if you'd like to try something else.";
+      }
+      if (text.includes("how are you")) {
+        return "I'm running smoothly and ready to chat! Thanks for asking. 😄";
+      }
+      if (text.includes("vm") || text.includes("deploy") || text.includes("hosting")) {
+        return "Nice! This page is designed for your VM hosting practice. Once deployed, open the VM's reachable address in a browser to test it.";
+      }
+      if (text.includes("bye") || text.includes("goodbye")) {
+        return "Goodbye! 👋 Good luck with your deployment.";
+      }
+      return "I got your message: \"" + rawText + "\"\n\nI'm a simple demo bot, so I don't understand every question yet. Try asking for the time, date, a fun fact, or type “help”.";
+    }
+
+    function sendMessage(message) {
+      const cleanMessage = message.trim();
+      if (!cleanMessage) return;
+      addMessage(cleanMessage, "user");
+      input.value = "";
+      input.focus();
+      // Small delay makes the demo feel more like a chat conversation.
+      window.setTimeout(() => addMessage(getReply(cleanMessage), "bot"), 350);
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      sendMessage(input.value);
+    });
+
+    document.querySelectorAll(".suggestion").forEach((button) => {
+      button.addEventListener("click", () => sendMessage(button.dataset.message));
+    });
+
+    addMessage("Hello! 👋\nI'm your demo chatbot. You can ask me about the time, today's date, or a fun fact. Type “help” to see what I can do.", "bot");
+  </script>
+</body>
+</html>
