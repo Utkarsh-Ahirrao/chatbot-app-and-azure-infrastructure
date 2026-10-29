@@ -1,6 +1,4 @@
-from pathlib import Path
-
-readme = r'''# Chatbot App & Azure Infrastructure
+# Chatbot App & Azure Infrastructure
 
 An end-to-end DevOps learning project that provisions Azure infrastructure with Terraform, runs infrastructure pipelines in Azure DevOps, and hosts a lightweight chatbot web application on an Azure Linux VM. The project is being developed incrementally, with CI/CD automation, secure access, DNS, and production-readiness improvements planned as the next milestones.
 
@@ -252,7 +250,3 @@ The chatbot is a front-end demonstration. It does not provide genuine AI-generat
 **Working milestone:** Terraform infrastructure pipeline and browser-accessible static chatbot hosting on an Azure Linux VM.
 
 **In progress / next:** repeatable application deployment, stronger pipeline controls, verified Key Vault integration, DNS/HTTPS, and production security hardening.
-'''
-path = Path("/mnt/data/README.md")
-path.write_text(readme, encoding="utf-8")
-print(f"Created {path} ({path.stat().st_size:,} bytes)")
