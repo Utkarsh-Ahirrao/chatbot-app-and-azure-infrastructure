@@ -5,3 +5,4 @@ variable "stgacc" {}
 variable "nsg" {}
 variable "pubip" {}
 variable "vm" {}
+variable "bastion" {}

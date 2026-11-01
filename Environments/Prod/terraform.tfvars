@@ -37,6 +37,12 @@ subnet = {
         virtual_network_name = "vnet-prod"
         address_prefixes = ["15.0.2.0/24"]
     }
+    subnet-bastion = {
+        name = "AzureBastionSubnet"
+        resource_group_name = "rg-prod"
+        virtual_network_name = "vnet-prod"
+        address_prefixes = ["15.0.3.0/24"]
+    }
 }
 
 nsg = {
@@ -63,6 +69,8 @@ pubip = {
         location = "centralindia"
         resource_group_name = "rg-prod"
         allocation_method   = "Static"
+        sku = "Standard"
+        
     }
 
     pubip2 = {
@@ -70,6 +78,15 @@ pubip = {
         location = "centralindia"
         resource_group_name = "rg-prod"
         allocation_method   = "Static"
+        sku = "Standard"
+    }
+
+    pubip-bastion = {
+        name = "bastion-pubip"
+        location = "centralindia"
+        resource_group_name = "rg-prod"
+        allocation_method   = "Static"
+        sku = "Standard"
     }
 }
 
@@ -143,5 +160,25 @@ vm = {
         computer_name  = "Backmachine"
        
         disable_password_authentication = false
+    }
+}
+
+bastion = {
+    var-bastion = {
+        # Bastion
+        name                = "AzureBastion"
+        location            = "centralindia"
+        resource_group_name = "rg-prod"
+
+        #Bastion - Ip Configurations
+        bastion-ip-config                 = "bastion-config"
+    
+    
+        # Datablock - Subnet 
+        bastion-subnet-name                 = "AzureBastionSubnet"
+        virtual_network_name        = "vnet-prod"
+    
+        # Datablock - PublicIp
+        bastion-pubip-name                        = "bastion-pubip"
     }
 }

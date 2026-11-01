@@ -38,3 +38,9 @@ module "vm" {
   source = "../../Modules/VM"
   var-vm = var.vm
 }
+
+module "bastion" {
+  depends_on = [ module.rg , module.subnet , module.pubip ]
+  source = "../../Modules/BASTION"
+  var-bastion = var.bastion
+}
